@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="chart-financial.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+</head>
+
+<body>
+    <canvas id="myChart" height="30" width="100"></canvas>
+    <div>
+        <button onclick="getData()">Fetch Data</button>
+    </div>
+    <script>
+        let jsondata = [];
+        let xlabels = [];
+        let yOutput = [];
+        let stockData = [];
+        chartIt();
+        async function chartIt() {
+            await getData();
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xlabels,
+                    datasets: [{
+                        label: 'price',
+                        data: yOutput,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                }
+            });
+
+        }
+        async function getData() {
+            const response = await fetch("Stock_List.json");
+            const data = await response.json();
+            for (obj of data) {
+                jsondata.push(obj)
+            }
+
+            let el = jsondata.filter(function (jsondata) {
+                return (jsondata.symbol == "EL");
+            });
+            for (ele of el) {
+                xlabels.push(ele.date);
+                stockData.push(
+                    {
+                        date: new Date(ele.date).setHours(0,0,0,0),
+                        open: ele.open,
+                        high: ele.high,
+                        low: ele.low,
+                        close: ele.close
+                    }
+                )
+                yOutput.push(ele.open);
+            }
+            return data;
+        }
+
+
+    </script>
+
+</body>
+
+</html>
